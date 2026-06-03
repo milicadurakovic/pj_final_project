@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import jakarta.websocket.server.PathParam;
 import rs.ac.singidunum.pj.entity.Bookstore;
 import rs.ac.singidunum.pj.repo.BookstoreRepository;
+import rs.ac.singidunum.pj.service.BookstoreService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,41 +30,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public class BookstoreController {
 
-    private final BookstoreRepository repository;
+    private final BookstoreService service;
 
     @GetMapping
-    public List<Bookstore> getBookstore(){
-        return repository.findAllByDeletedAtIsNull();
+    public List<Bookstore> getBookstores(){
+        return service.getAll();
     }
+
     @GetMapping(path = "/{id}")
     public ResponseEntity<Bookstore> getBookById(@PathVariable Integer id){
-        return ResponseEntity.of(repository.findOneByBookstoreIdAndDeletedAtIsNull(id));
+        return ResponseEntity.of(service.getById(id));
     }
     
     @PostMapping
     public Bookstore createBookstore(@RequestBody Bookstore entity){
-        Bookstore bookstore =new Bookstore();
-        bookstore.setName(entity.getName());
-        bookstore.setAdress(entity.getAdress());
-        bookstore.setCreatedAt(LocalDateTime.now());
-        return repository.save(bookstore);
+        return service.create(entity);
     }
 
     @PutMapping(path = "/{id}")
     public Bookstore updateBookstore(@PathVariable Integer id, @RequestBody Bookstore entity){
-        Bookstore bookstore=repository.findOneByBookstoreIdAndDeletedAtIsNull(id).orElseThrow();
-        bookstore.setName(entity.getName());
-        bookstore.setAdress(entity.getAdress());
-        bookstore.setUpdatedAt(LocalDateTime.now());
-        return repository.save(bookstore);
+        return service.update(id,entity);
     }
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void deleteBookstoreById(@PathVariable Integer id){
-        Bookstore bookstore =repository.findOneByBookstoreIdAndDeletedAtIsNull(id).orElseThrow();
-        bookstore.setDeletedAt(LocalDateTime.now());
-        repository.save(bookstore);
-
+        service.deleteById(id);
     }
     
 

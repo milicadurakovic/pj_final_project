@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservations :: BookVerse</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+
+<body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
+        <div class="container">
+            <a class="navbar-brand" href="./index.html">
+                <i class="fa-solid fa-book"></i> BookVerse
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fa-regular fa-house"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html">
+                            <i class="fa-solid fa-list"></i> List
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="bookstore.html">
+                            <i class="fa-solid fa-store"></i> Bookstores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active " href="reservation.html">
+                            <i class="fa-solid fa-magnifying-glass"></i> Reservations
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+<div class="container mt-3">
+
+    <h3 class="mb-3">New Reservation</h3>
+
+    <div class="card p-3 mb-4">
+
+        <div class="row g-2">
+
+            <div class="col-md-3">
+                <select id="bookstore" class="form-select"></select>
+            </div>
+
+            <div class="col-md-3">
+                <input id="bookName" class="form-control" placeholder="Book name">
+            </div>
+
+            <div class="col-md-3">
+                <input id="customerName" class="form-control" placeholder="Customer name">
+            </div>
+
+            <div class="col-md-2">
+                <select id="status" class="form-select">
+                    <option>PENDING</option>
+                    <option>CONFIRMED</option>
+                    <option>CANCELED</option>
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <button class="btn btn-success w-100" onclick="createReservation()">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Book</th>
+                <th>Bookstore</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody id="reservations"></tbody>
+    </table>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content p-3">
+
+            <h5>Edit Reservation</h5>
+
+            <input type="hidden" id="editId">
+
+            <input id="editBookName" class="form-control mb-2">
+            <input id="editCustomerName" class="form-control mb-2">
+
+            <select id="editStatus" class="form-select mb-2">
+                <option>PENDING</option>
+                <option>CONFIRMED</option>
+                <option>CANCELED</option>
+            </select>
+
+            <button class="btn btn-primary" onclick="updateReservation()">
+                Save
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+const table = document.getElementById("reservations");
+const bookstoreSelect = document.getElementById("bookstore");
+
+// ---------------- BOOKSTORES DROPDOWN ----------------
+fetch("/api/bookstore")
+    .then(r => r.json())
+    .then(data => {
+        let options = "";
+        for (let b of data) {
+            options += `<option value="${b.bookstoreId}">${b.name}</option>`;
+        }
+        bookstoreSelect.innerHTML = options;
+    });
+
+// ---------------- CREATE ----------------
+function createReservation() {
+
+    fetch("/api/reservation", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            bookstoreId: bookstoreSelect.value,
+            bookName: document.getElementById("bookName").value,
+            customerName: document.getElementById("customerName").value,
+            status: document.getElementById("status").value
+        })
+    }).then(() => location.reload());
+}
+
+// ---------------- DELETE ----------------
+function remove(id) {
+    if (!confirm("Delete reservation " + id + "?")) return;
+
+    fetch(`/api/reservation/${id}`, { method: "DELETE" })
+        .then(() => location.reload());
+}
+
+// ---------------- EDIT OPEN ----------------
+function edit(reservation) {
+    document.getElementById("editId").value = reservation.reservationId;
+    document.getElementById("editBookName").value = reservation.bookName;
+    document.getElementById("editCustomerName").value = reservation.customerName;
+    document.getElementById("editStatus").value = reservation.status;
+
+    new bootstrap.Modal(document.getElementById('editModal')).show();
+}
+
+// ---------------- UPDATE ----------------
+function updateReservation() {
+       const id = document.getElementById("editId").value;
+
+    fetch(`/api/reservation/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            bookName: document.getElementById("editBookName").value,
+            customerName: document.getElementById("editCustomerName").value,
+            status: document.getElementById("editStatus").value
+        })
+    })
+    .then(res => res.json())
+    .then(() => window.location.reload());
+
+
+}
+
+// ---------------- LOAD TABLE ----------------
+function loadReservations() {
+
+    fetch("/api/reservation")
+        .then(r => r.json())
+        .then(async data => {
+
+            let content = "";
+
+            for (let r of data) {
+
+                const bookstore = await fetch(`/api/bookstore/${r.bookstoreId}`)
+                    .then(res => res.json());
+
+                content += `
+                <tr>
+                    <td>${r.reservationId}</td>
+                    <td>${r.bookName || "-"}</td>
+                    <td>${bookstore.name}</td>
+                    <td>${r.customerName || "-"}</td>
+                    <td>${r.status}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning"
+                            onclick='edit(${JSON.stringify(r)})'>
+                            <i class="fa fa-edit"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-danger"
+                            onclick="remove(${r.reservationId})">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }
+
+            table.innerHTML = content;
+        });
+}
+
+loadReservations();
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

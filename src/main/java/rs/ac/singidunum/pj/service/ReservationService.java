@@ -36,15 +36,14 @@ public class ReservationService {
         return repository.save(r);
     }
 
+    
     public Reservation update(Integer id, Reservation entity) {
-        Reservation r = repository.findOneByReservationIdAndDeletedAtIsNull(id)
-                .orElseThrow();
+        Reservation r = repository.findOneByReservationIdAndDeletedAtIsNull(id).orElseThrow();
 
-        r.setBookstoreId(entity.getBookstoreId());
         r.setBookName(entity.getBookName());
         r.setCustomerName(entity.getCustomerName());
         r.setStatus(entity.getStatus());
-
+        r.setUpdatedAt(LocalDateTime.now());
         return repository.save(r);
     }
    

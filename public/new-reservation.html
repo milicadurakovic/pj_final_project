@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Bookstore :: BookVerse</title>
+    <title>Create reservation :: BookVerse</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
@@ -45,13 +45,13 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link active" href="bookstore.html">
+                        <a class="nav-link " href="bookstore.html">
                             <i class="fa-solid fa-store"></i> Bookstores
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="reservation.html">
-                            <i class="fa-solid fa-magnifying-glass"></i> Reservations
+                            <i class="fa-solid fa-magnifying-glass"></i>Reservations
                         </a>
                     </li>
 
@@ -61,83 +61,115 @@
     </nav>
 
     <div class="container">
-        <div class="crud-container">
-            <div class="card">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow">
+
                 <div class="card-header">
-                    <strong>Edit Bookstore</strong>
+                    <strong>
+                        <i class="fa-solid fa-bookmark"></i>
+                        Create Reservation
+                    </strong>
                 </div>
+
                 <div class="card-body">
+
                     <div class="mb-3">
-                        <label for="id" class="form-label">ID:</label>
-                        <input type="number" class="form-control" id="id" disabled>
+                        <label class="form-label">Bookstore</label>
+                        <select id="bookstore" class="form-select"></select>
                     </div>
+
                     <div class="mb-3">
-                        <label for="name" class="form-label">Ime:</label>
-                        <input type="text" class="form-control" id="name" >
+                        <label class="form-label">Book Name</label>
+                        <input id="bookName"
+                               class="form-control"
+                               placeholder="Enter book name">
                     </div>
+
                     <div class="mb-3">
-                        <label for="adress" class="form-label">Address:</label>
-                        <input type="text" class="form-control" id="adress" >
+                        <label class="form-label">Customer Name</label>
+                        <input id="customerName"
+                               class="form-control"
+                               placeholder="Enter customer name">
                     </div>
-                </div>
-                <div class="card-footer">
-                    <button type="button" class="btn btn-success" id="save">
-                        <i class="fa-regular fa-floppy-disk"></i>Save
-                    </button>
-                    <a href="/bookstore.html"
+
+                    <div class="mb-4">
+                        <label class="form-label">Status</label>
+                        <select id="status" class="form-select">
+                            <option>PENDING</option>
+                            <option>CONFIRMED</option>
+                            <option>CANCELED</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <button class="btn btn-success" onclick="createReservation()">
+                            <i class="fa-solid fa-plus"></i>
+                            Add Reservation
+                        </button>
+
+                        <a href="/reservation.html"
                            class="btn btn-secondary">
                             <i class="fa-solid fa-arrow-left"></i>
                             Back
                         </a>
+
+                    </div>
+
                 </div>
+
             </div>
 
         </div>
+
     </div>
+
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
     <script>
-        const params = new URLSearchParams(window.location.search)
-        const id = params.get('id')
-
-        const inputId = document.getElementById('id')
-        const inputName = document.getElementById('name')
-        const inputAdsress = document.getElementById('adress')
+        
+        const table = document.getElementById("reservations");
+        const bookstoreSelect = document.getElementById("bookstore");
 
         function openAll(){
-            window.location.href = '/bookstore.html'
+            window.location.href = '/reservation.html'
         }
 
-        if (id == null || id == '') {
-           openAll()
-        }
-
-        fetch(`/api/bookstore/${id}`)
-            .then(rsp => rsp.json())
+         fetch("/api/bookstore")
+            .then(r => r.json())
             .then(data => {
-                inputId.value = data.bookstoreId
-                inputName.value = data.name
-                inputAdsress.value = data.adress
+                let options = "";
+                for (let b of data) {
+                    options += `<option value="${b.bookstoreId}">${b.name}</option>`;
+                }
+                bookstoreSelect.innerHTML = options;
+            });
 
-                document.getElementById('save')
-                    .addEventListener('click',()=>{
-                        //Update obj via API
-                        fetch(`/api/bookstore/${data.bookstoreId}`,{
-                            method:'PUT',
-                            headers:{
-                                'Content-Type':'application/json'
-                            },
-                            body: JSON.stringify({
-                                name: inputName.value,
-                                adress: inputAdsress.value
-                            })
-                        }).then(rsp=>openAll())
-                    })
-            })
+        
 
+        function createReservation() {
+
+            fetch("/api/reservation", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    bookstoreId: bookstoreSelect.value,
+                    bookName: document.getElementById("bookName").value,
+                    customerName: document.getElementById("customerName").value,
+                    status: document.getElementById("status").value
+                })
+            }).then(() => location.reload());
+        }
         
 
     </script>

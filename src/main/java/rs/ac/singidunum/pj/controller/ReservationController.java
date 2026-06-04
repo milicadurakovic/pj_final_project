@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import rs.ac.singidunum.pj.entity.Bookstore;
 import rs.ac.singidunum.pj.entity.Reservation;
 import rs.ac.singidunum.pj.service.ReservationService;
 
@@ -31,11 +33,13 @@ public class ReservationController {
         return service.create(entity);
     }
 
-    @PutMapping("/{id}")
-    public Reservation update(@PathVariable Integer id,
-                              @RequestBody Reservation entity) {
+    
+    @PutMapping(path = "/{id}")
+    public Reservation update(@PathVariable Integer id, @RequestBody Reservation entity) {
         return service.update(id, entity);
     }
+
+    
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

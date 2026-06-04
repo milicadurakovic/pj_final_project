@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="sr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Reservation :: BookVerse</title>
+
+   
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/global.css" />
+</head>
+
+<body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fa-solid fa-book"></i> BookVerse
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fa-solid fa-house"></i> Home
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html">
+                            <i class="fa-solid fa-list"></i> Books
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="bookstore.html">
+                            <i class="fa-solid fa-store"></i> Bookstores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="reservation.html">
+                            <i class="fa-solid fa-magnifying-glass"></i> Reservations
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+<div class="container">
+    <div class="crud-container">
+        <div class="card">
+        <div class="card-header">
+            <strong>Edit Reservation</strong>
+        </div>
+
+        <div class="card-body">
+
+            <input type="hidden" id="reservationId">
+
+            <div class="mb-3">
+                <label class="form-label">Book Name</label>
+                <input type="text" id="bookName" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Customer Name</label>
+                <input type="text" id="customerName" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select id="status" class="form-select">
+                    <option value="PENDING">PENDING</option>
+                    <option value="CONFIRMED">CONFIRMED</option>
+                    <option value="CANCELED">CANCELED</option>
+                </select>
+            </div>
+
+            <button id="save" class="btn btn-success">
+                Save
+            </button>
+
+            <a href="/reservation.html" class="btn btn-secondary">
+                Back
+            </a>
+
+        </div>
+    </div>
+    </div>
+
+</div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
+
+const inputId = document.getElementById('reservationId');
+const inputBookName = document.getElementById('bookName');
+const inputCustomerName = document.getElementById('customerName');
+const inputStatus = document.getElementById('status');
+
+function openAll(){
+            window.location.href = '/reservation.html'
+        }
+
+        if (id == null || id == '') {
+           openAll()
+        }
+
+fetch(`/api/reservation/${id}`)
+    .then(rsp => rsp.json())
+    .then(data => {
+
+        inputId.value = data.reservationId;
+        inputBookName.value = data.bookName;
+        inputCustomerName.value = data.customerName;
+        inputStatus.value = data.status;
+
+        document.getElementById('save')
+                .addEventListener('click', () => {
+
+        fetch(`/api/reservation/${data.reservationId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                bookName: inputBookName.value,
+                customerName: inputCustomerName.value,
+                status: inputStatus.value
+            })
+        })
+        .then(rsp=>openAll()
+        );
+
+    });
+
+    });
+
+
+
+</script>
+
+</body>
+</html>

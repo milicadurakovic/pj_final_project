@@ -42,5 +42,8 @@ public class Reservation {
     }
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
     
 }

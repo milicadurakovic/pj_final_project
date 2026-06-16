@@ -98,6 +98,8 @@
                     ? data.authors.map(a => a.author.key)
                     : []
 
+                
+
                 Promise.all(
                     authors.map(url =>
                         fetch(`https://openlibrary.org${url}.json`)
@@ -105,11 +107,11 @@
                     )
                 ).then(authorData => {
 
-                    const authorNames = authorData.map(a => a.name).join(', ')
+                    const authorNames = authorData.map(a => a.name).join(', ') //ukoliko postoje dva ili vise autora
 
                     const cover = data.covers
                         ? `https://covers.openlibrary.org/b/id/${data.covers[0]}-L.jpg`
-                        : 'https://via.placeholder.com/300x450?text=No+Cover'
+                        : 'https://via.placeholder.com/300x450?text=No+Cover' //ako knjiga ima naslovnu stranu napravi URL a ako nema stajace NO COVER slika
 
 
                     container.innerHTML = `
@@ -142,6 +144,8 @@
                     //rating
                     const stars = document.querySelectorAll(".star")
 
+                    //prvo proveravamo da li postoji sacuvano ocenjivanje u lokalnoj memoriji brauzera
+
                     let savedRatings = JSON.parse(localStorage.getItem("ratings")) || {}
                     let currentRating = savedRatings[id] || 0
 
@@ -161,7 +165,7 @@
 
                     renderStars(currentRating)
 
-                    // on click final rating
+                    // klik -> konacna ocena
                     stars.forEach(star => {
                         star.addEventListener("click", () => {
                             const value = parseInt(star.dataset.value)

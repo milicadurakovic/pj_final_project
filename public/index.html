@@ -108,7 +108,7 @@
                 const list = document.getElementById('books')
 
                 const books = data.docs.slice(0, 60)
-
+                //kreiranje kartice za svaku knjigu
                 books.forEach(book => {
                     const item = document.createElement('div')
                     item.classList.add('card', 'book-card')
